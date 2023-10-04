@@ -1,63 +1,67 @@
 body {
-    background-color: black;
-    margin: 0;
-    padding: 0;
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 18pt;
-    color: #CEE2FF;
-    line-height: 70%;
-    overflow: hidden; /* Hide scrollbars */
-  }
-  
-  .slider-container {
-    position: fixed;
-    bottom: 35px;
-    left: 20px;
-    right: 20px;
-  }
-  
-  input[type=range] {
-    -webkit-appearance: none;
-    width: 100%;
-    background: #636363;
-  }
-  
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #CEE2FF;
-    border-radius: 50%;
-    transform: translateY(-48%);
-    z-index: 2;
-  }
-  
-  input[type=range]::-webkit-slider-runnable-track {
-    height: 1px;
-    background: linear-gradient(to right, #CEE2FF var(--range-value, 0%), #636363 var(--range-value, 0%));
-    z-index: 2;
+  background-color: black;
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 18pt;
+  color: #CEE2FF;
+  line-height: 70%;
+  overflow: hidden; /* Hide scrollbars */
 }
-  
-  #tic-mark {
-    position: absolute;
-    width: 1px;
-    height: 20px;
-    background: var(--tic-color, white);
-    transform: translate(-1px, -64%);
-    z-index: 1;
-  }
 
-  ::selection {
-    color: #CEE2FF;
-    background: #CEE2FF;
-  }
-
-  .text-container > div {
-    margin-top: 5pt;
-  }
-
-  a {
-    color: #CEE2FF;
-    text-decoration: none;
+.container {
+  text-align: center;
+  margin-top: 10vh;
 }
-  
+
+.slider-container {
+  position: fixed;
+  bottom: 35px;
+  left: 20px;
+  right: 20px;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: #636363;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #CEE2FF;
+  border-radius: 50%;
+  transform: translateY(-48%);
+  z-index: 2;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  height: 1px;
+  background: linear-gradient(to right, #CEE2FF var(--range-value, 0%), #636363 var(--range-value, 0%));
+  z-index: 2;
+}
+
+#tic-mark {
+  position: absolute;
+  width: 1px;
+  height: 20px;
+  background: var(--tic-color, white);
+  transform: translate(-1px, -64%);
+  z-index: 1;
+}
+
+::selection {
+  color: #CEE2FF;
+  background: #CEE2FF;
+}
+
+.text-container > div {
+  margin-top: 8pt;
+}
+
+a {
+  color: #CEE2FF;
+  text-decoration: none;
+}
