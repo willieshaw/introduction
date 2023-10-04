@@ -33,7 +33,7 @@ body {
   
   .slider-container {
     position: fixed;
-    bottom: 50px;
+    bottom: 25px;
     left: 20px;
     right: 20px;
   }
