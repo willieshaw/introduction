@@ -3,32 +3,10 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Helvetica Neue', sans-serif;
-    font-size: 12pt;
+    font-size: 18pt;
     color: #CEE2FF;
     line-height: 70%;
     overflow: hidden; /* Hide scrollbars */
-  }
-  
-  .container {
-    text-align: center;
-    margin-top: 10vh;
-  }
-  
-  h1 {
-    margin-top: 50px;
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 12pt;
-    font-weight: 400;
-    color: #CEE2FF;
-  }
-  
-  .subtitle, .description {
-    margin: 10px 0;
-  }
-  
-  .contact-link {
-    color: #CEE2FF;
-    text-decoration: none;
   }
   
   .slider-container {
