@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   
   // Threshold for snapping to the tick mark
-  const snapThreshold = 20; // You can adjust this value
+  const snapThreshold = 13; // You can adjust this value
   
   // Event listener for mouse devices
   slider.addEventListener("mouseup", function() {
