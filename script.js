@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function setCoordinates(element, random1, random2, handleValue, ticValue, randomXYValue) {
-    let x = Math.abs(handleValue - ticValue);
+    let x = handleValue - ticValue;  // Removed Math.abs()
     if (randomXYValue > 1) {
       element.style.top = x * random1 + 'px';
       element.style.left = x * random2 + 'px';
