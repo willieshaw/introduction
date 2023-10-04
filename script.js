@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
   let phrases = [
     { text: "Willie Shaw", elementId: "who" },
     { text: "Graphic Design", elementId: "what" },
-    { text: "Research, narrative, user experience, systems.", elementId: "how" },
+    { text: "Research, narrative, user experience, visual systems.", elementId: "how" },
     { text: "CONTACT", elementId: "contact" }
   ];
 
