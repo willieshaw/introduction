@@ -29,8 +29,8 @@ input[type=range] {
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   background: #CEE2FF;
   border-radius: 50%;
   transform: translateY(-48%);
@@ -46,9 +46,9 @@ input[type=range]::-webkit-slider-runnable-track {
 #tic-mark {
   position: absolute;
   width: 1px;
-  height: 20px;
+  height: 30px;
   background: var(--tic-color, white);
-  transform: translate(-4px, -64%);
+  transform: translate(-4px, -13pt);
   z-index: 1;
 }
 
