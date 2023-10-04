@@ -78,6 +78,7 @@ a {
 .copy-message {
   display: none;
   text-align: center;
+  font-size: 12pt;
   /* position: fixed; */
   /* bottom: 10px; */
   /* left: 50%; */
