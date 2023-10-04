@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
     { text: "Willie Shaw", elementId: "who" },
     { text: "Graphic Design", elementId: "what" },
     { text: "Research, narrative, user experience, visual systems.", elementId: "how" },
-    { text: "CONTACT", elementId: "contact" }
+    { text: "Contact", elementId: "contact" }
   ];
 
   let allLetterData = [];
@@ -157,4 +157,20 @@ document.addEventListener("DOMContentLoaded", function() {
   if ('ontouchstart' in window) {
     document.documentElement.classList.add('touch');
   }
+
+  const contactLink = document.getElementById("contact-link");
+  const copyMessage = document.getElementById("copy-message");
+
+  contactLink.addEventListener("click", function(event) {
+    event.preventDefault();
+    navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
+      // Show and then hide the message
+      copyMessage.classList.add("show");
+      setTimeout(function() {
+        copyMessage.classList.remove("show");
+      }, 2000);  // Message will fade out after 2 seconds
+    }).catch(function(err) {
+      console.error("Could not copy text", err);
+    });
+  });
 });
