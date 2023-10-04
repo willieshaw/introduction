@@ -57,11 +57,15 @@ input[type=range]::-webkit-slider-runnable-track {
   background: #CEE2FF;
 }
 
-.text-container > div {
+/* .text-container > div {
   margin-top: 8pt;
-}
+} */
 
 a {
   color: #CEE2FF;
   text-decoration: none;
+}
+
+#who, #what, #how, #contact {
+  line-height: 1.15; 
 }
