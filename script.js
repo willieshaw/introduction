@@ -116,14 +116,41 @@ document.addEventListener("DOMContentLoaded", function() {
     handleValue = this.value;
     updatePositions();
     updateTicColor();
-
+    updateLetterPositions();  // Function to update letter positions
+  });
+  
+  function updateLetterPositions() {
     allLetterData.forEach(({ letterIDs, randomMultipliers, randomXY }) => {
       for (let i = 0; i < letterIDs.length; i++) {
         let element = document.getElementById(letterIDs[i]);
         setCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], handleValue, ticValue, randomXY[i]);
       }
     });
+  }
+  
+  // Threshold for snapping to the tick mark
+  const snapThreshold = 5; // You can adjust this value
+  
+  // Event listener for mouse devices
+  slider.addEventListener("mouseup", function() {
+    if (Math.abs(handleValue - ticValue) <= snapThreshold) {
+      slider.value = ticValue;
+      handleValue = ticValue;
+      updatePositions();
+      updateLetterPositions();  // Update letter positions when snapped
+    }
   });
+  
+  // Event listener for touch devices
+  slider.addEventListener("touchend", function() {
+    if (Math.abs(handleValue - ticValue) <= snapThreshold) {
+      slider.value = ticValue;
+      handleValue = ticValue;
+      updatePositions();
+      updateLetterPositions();  // Update letter positions when snapped
+    }
+  });
+  
 
   window.addEventListener("resize", updatePositions);
 
