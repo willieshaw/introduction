@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", function() {
+  // Common Initialization
+  let targetX, targetY;
+  const target = document.createElement("div");
+  target.id = "target";
+  document.body.appendChild(target);
+
   // Slider and tic mark initialization
   const slider = document.getElementById("slider");
   const ticMark = document.getElementById("tic-mark");
@@ -99,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function setCoordinates(element, random1, random2, handleValue, ticValue, randomXYValue) {
-    let x = handleValue - ticValue;  // Removed Math.abs()
+    let x = handleValue - ticValue;
     if (randomXYValue > 1) {
       element.style.top = x * random1 + 'px';
       element.style.left = x * random2 + 'px';
@@ -109,57 +115,127 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  updatePositions();
-  updateTicColor();
-
-  slider.addEventListener("input", function() {
-    handleValue = this.value;
-    updatePositions();
-    updateTicColor();
-    updateLetterPositions();  // Function to update letter positions
-  });
+  function setMouseCoordinates(element, random1, random2, x, y, randomXYValue) {
+    let targetRadius = 10;  // Assuming the target has a radius of 10 pixels
+    let adjustedX = x - targetRadius;
+    let adjustedY = y - targetRadius;
   
-  function updateLetterPositions() {
-    allLetterData.forEach(({ letterIDs, randomMultipliers, randomXY }) => {
-      for (let i = 0; i < letterIDs.length; i++) {
-        let element = document.getElementById(letterIDs[i]);
-        setCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], handleValue, ticValue, randomXY[i]);
-      }
-    });
+    if (randomXYValue > 1) {
+      element.style.top = adjustedX * random1 + 'px';
+      element.style.left = adjustedY * random2 + 'px';
+    } else {
+      element.style.top = adjustedY * random1 + 'px';
+      element.style.left = adjustedX * random2 + 'px';
+    }
   }
   
-  // Threshold for snapping to the tick mark
-  const snapThreshold = ('ontouchstart' in window) ? 30 : 15;
-  
-  // Event listener for mouse devices
-  slider.addEventListener("mouseup", function() {
-    if (Math.abs(handleValue - ticValue) <= snapThreshold) {
-      slider.value = ticValue;
-      handleValue = ticValue;
-      updatePositions();
-      updateLetterPositions();  // Update letter positions when snapped
-    }
-  });
-  
-  // Event listener for touch devices
-  slider.addEventListener("touchend", function() {
-    if (Math.abs(handleValue - ticValue) <= snapThreshold) {
-      slider.value = ticValue;
-      handleValue = ticValue;
-      updatePositions();
-      updateLetterPositions();  // Update letter positions when snapped
-    }
-  });
-  
-
-  window.addEventListener("resize", updatePositions);
 
   if ('ontouchstart' in window) {
-    document.documentElement.classList.add('touch');
+    // Initialize touch-based interaction
+    updatePositions();
+    updateTicColor();
+    slider.addEventListener("input", function() {
+      handleValue = this.value;
+      updatePositions();
+      updateTicColor();
+      allLetterData.forEach(({ letterIDs, randomMultipliers, randomXY }) => {
+        for (let i = 0; i < letterIDs.length; i++) {
+          let element = document.getElementById(letterIDs[i]);
+          setCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], handleValue, ticValue, randomXY[i]);
+        }
+      });
+    });
+  } else {
+    // Initialize mouse-based interaction
+    const target = document.getElementById("target");
+
+    target.addEventListener("load", function() {
+      const svgDoc = target.contentDocument;
+      const svgRoot = svgDoc.documentElement;
+      const bbox = svgRoot.getBBox();
+      
+      targetX = Math.floor(Math.random() * window.innerWidth);
+      targetY = Math.floor(Math.random() * window.innerHeight);
+      target.style.position = "absolute";
+      target.style.left = `${targetX - bbox.width / 2}px`;  // Center the SVG
+      target.style.top = `${targetY - bbox.height / 2}px`;  // Center the SVG
+
+      const clickableCircle = document.getElementById("clickable-circle");
+      clickableCircle.style.left = `${targetX - 8}px`;  // Center the circle
+      clickableCircle.style.top = `${targetY - 8}px`;  // Center the circle
+
+      clickableCircle.addEventListener("click", function() {
+        navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
+          // Show and then hide the message
+          copyMessage.classList.add("show");
+          setTimeout(function() {
+            copyMessage.classList.remove("show");
+          }, 2000);  // Message will fade out after 2 seconds
+        }).catch(function(err) {
+          console.error("Could not copy text", err);
+        });
+      });
+    });
+
+    let isSnapped = false;  // Variable to track whether the cursor has snapped to the target
+
+    window.addEventListener("mousemove", function(e) {
+      const x = e.clientX;
+      const y = e.clientY;
+
+      // Calculate the distance from the cursor to the center of the target
+      const dx = x - targetX;  // Center of the SVG
+      const dy = y - targetY;  // Center of the SVG
+
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // Check if the cursor is inside the 5x5 target at the center of the larger target
+      if (distance < 10 && !isSnapped) {  // 5 pixels for the inner target radius
+        isSnapped = true;
+        allLetterData.forEach(({ letterIDs }) => {
+          for (let i = 0; i < letterIDs.length; i++) {
+            let element = document.getElementById(letterIDs[i]);
+            element.style.top = '0px';
+            element.style.left = '0px';
+          }
+        });
+      } else if (distance >= 5 && isSnapped) {
+        isSnapped = false;
+      } else if (!isSnapped) {
+        allLetterData.forEach(({ letterIDs, randomMultipliers, randomXY }) => {
+          for (let i = 0; i < letterIDs.length; i++) {
+            let element = document.getElementById(letterIDs[i]);
+            setMouseCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], x - targetX, y - targetY, randomXY[i]);
+          }
+        });
+      }
+    });
+
+
+    slider.style.display = "none";
+    ticMark.style.display = "none";
+    contact.style.display = "none";
+
+    
   }
 
+
   const contactLink = document.getElementById("contact-link");
+  // const targetSVG = document.getElementById("target");
   const copyMessage = document.getElementById("copy-message");
+
+  // targetSVG.addEventListener("click", function(event) {
+  //   event.preventDefault();
+  //   navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
+  //     // Show and then hide the message
+  //     copyMessage.classList.add("show");
+  //     setTimeout(function() {
+  //       copyMessage.classList.remove("show");
+  //     }, 2000);  // Message will fade out after 2 seconds
+  //   }).catch(function(err) {
+  //     console.error("Could not copy text", err);
+  //   });
+  // });
 
   contactLink.addEventListener("click", function(event) {
     event.preventDefault();
