@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function() {
     updateTicColor();
     slider.addEventListener("change", function() {
       // Snapping functionality
-      const snapDistance = 20; // within 20 units
+      const snapDistance = 30; // within 30 units
       if (Math.abs(this.value - ticValue) < snapDistance) {
         this.value = ticValue;
       }
