@@ -140,6 +140,24 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initialize touch-based interaction
     updatePositions();
     updateTicColor();
+    slider.addEventListener("change", function() {
+      // Snapping functionality
+      const snapDistance = 20; // within 20 units
+      if (Math.abs(this.value - ticValue) < snapDistance) {
+        this.value = ticValue;
+      }
+      
+      handleValue = this.value;
+      updatePositions();
+      updateTicColor();
+      allLetterData.forEach(({ letterIDs, randomMultipliers, randomXY }) => {
+        for (let i = 0; i < letterIDs.length; i++) {
+          let element = document.getElementById(letterIDs[i]);
+          setCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], handleValue, ticValue, randomXY[i]);
+        }
+      });
+    });
+    
     slider.addEventListener("input", function() {
       handleValue = this.value;
       updatePositions();
@@ -151,6 +169,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       });
     });
+    
     
   } else {
     // Initialize mouse-based interaction
