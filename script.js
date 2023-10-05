@@ -145,6 +145,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       });
     });
+    target.style.display = "none";
+    const clickableCircle = document.getElementById("clickable-circle");
+    clickableCircle.style.display = "none";
   } else {
     // Initialize mouse-based interaction
     const target = document.getElementById("target");
