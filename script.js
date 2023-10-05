@@ -1,3 +1,9 @@
+if ('ontouchstart' in window) {
+  document.documentElement.classList.add('touch');
+} else {
+  document.documentElement.classList.add('no-touch');
+}
+
 document.addEventListener("DOMContentLoaded", function() {
   // Common Initialization
   let targetX, targetY;
@@ -145,9 +151,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       });
     });
-    target.style.display = "none";
-    const clickableCircle = document.getElementById("clickable-circle");
-    clickableCircle.style.display = "none";
+    
   } else {
     // Initialize mouse-based interaction
     const target = document.getElementById("target");

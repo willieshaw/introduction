@@ -125,5 +125,13 @@ a {
   opacity: 0;
 }
 
+.touch #target,
+.touch #clickable-circle {
+  display: none;
+}
+
+.no-touch #slider {
+  display: none;
+}
 
 
