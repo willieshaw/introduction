@@ -4,7 +4,7 @@ body {
   padding: 0;
   font-family: 'Helvetica Neue', sans-serif;
   font-size: 18pt;
-  color: #e3e3e3;
+  color: #DCDCDC;
   line-height: 70%;
   overflow: hidden; /* Hide scrollbars */
   animation: fadeInAnimation ease 0.2s;
@@ -75,7 +75,7 @@ svg {
 } */
 
 a {
-  color: #e3e3e3;
+  color: #DCDCDC;
   text-decoration: none;
 }
 

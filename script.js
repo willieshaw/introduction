@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function() {
         this.value = ticValue;
         document.body.style.color = 'white';
       } else {
-        document.body.style.color = '#e3e3e3';
+        document.body.style.color = '#DCDCDC';
       }
       
       handleValue = this.value;
@@ -233,10 +233,10 @@ document.addEventListener("DOMContentLoaded", function() {
           })        
       } else {
           const svgRoot = svgDoc.documentElement;
-          changeSvgColor(svgRoot, '#e3e3e3');
-          document.body.style.color = '#e3e3e3';
+          changeSvgColor(svgRoot, '#DCDCDC');
+          document.body.style.color = '#DCDCDC';
           links.forEach(function(link) {
-            link.style.color = '#e3e3e3'; 
+            link.style.color = '#DCDCDC'; 
           })   
         }
 
