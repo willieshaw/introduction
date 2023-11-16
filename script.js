@@ -58,16 +58,23 @@ document.addEventListener("DOMContentLoaded", function() {
 
   function updatePositions() {
     const trackWidth = slider.offsetWidth;
-    const ticPosition = (ticValue / maxValue) * trackWidth;
+    const padding = 10; // Padding on each side
+    const effectiveTrackWidth = trackWidth - (padding * 2); // Subtract padding from both sides
+  
+    // Adjust the ticPosition to account for the padding
+    // When ticValue is 0, ticPosition should be 12 (the value of padding)
+    // When ticValue is maxValue, ticPosition should be trackWidth - 12
+    let ticPosition = (ticValue / maxValue) * effectiveTrackWidth + padding;
+  
     const rangeValue = (handleValue / maxValue) * 100;
-
+  
     slider.style.setProperty('--range-value', `${rangeValue}%`);
     ticMark.style.left = `${ticPosition}px`;
   }
 
   function updateTicColor() {
     if (handleValue >= ticValue) {
-      ticMark.style.backgroundColor = '#CEE2FF';
+      ticMark.style.backgroundColor = 'white';
     } else {
       ticMark.style.backgroundColor = '#636363';
     }
@@ -147,6 +154,9 @@ document.addEventListener("DOMContentLoaded", function() {
       const snapDistance = 20; // within 20 units
       if (Math.abs(this.value - ticValue) < snapDistance) {
         this.value = ticValue;
+        document.body.style.color = 'white';
+      } else {
+        document.body.style.color = '#e3e3e3';
       }
       
       handleValue = this.value;
