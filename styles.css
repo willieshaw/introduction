@@ -4,9 +4,12 @@ body {
   padding: 0;
   font-family: 'Helvetica Neue', sans-serif;
   font-size: 18pt;
-  color: white;
+  color: #e3e3e3;
   line-height: 70%;
   overflow: hidden; /* Hide scrollbars */
+  animation: fadeInAnimation ease 0.2s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
 }
 
 .container {
@@ -53,16 +56,26 @@ input[type=range]::-webkit-slider-runnable-track {
 }
 
 ::selection {
-  color: white;
-  background: white;
+  color: rgb(229, 200, 255);
+  /* background: rgba(247, 234, 255, 0.17); */
 }
+
+svg {
+  fill: red !important; /* Change elements to red */
+
+}
+
+.red-color * {
+  fill: red !important; /* Change elements to red */
+}
+
 
 /* .text-container > div {
   margin-top: 8pt;
 } */
 
 a {
-  color: white;
+  color: #e3e3e3;
   text-decoration: none;
 }
 
@@ -72,7 +85,7 @@ a {
 
 #contact {
   margin-top: 18px; 
- 
+    display: inline-block;
 }
 
 .copy-message {
@@ -98,20 +111,24 @@ a {
   opacity: 0.9;
 }
 
-/* #target {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: red;
-  border-radius: 50%;
-} */
-
 #who span, #what span, #how span, #contact span {
-  transition: top 0.7s cubic-bezier(0.2, 0.8, 0.1, 1), left 0.7s cubic-bezier(0.2, 0.8, 0.1, 1);
+  transition: top 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 #target {
   pointer-events: none;
+  animation: fadeInAnimation ease 0.2s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeInAnimation {
+  0% {
+      opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 #clickable-circle {
@@ -134,4 +151,7 @@ a {
   display: none;
 }
 
-
+svg path[fill="white"] {
+  fill: blueviolet;
+  mix-blend-mode: exclusion;
+}

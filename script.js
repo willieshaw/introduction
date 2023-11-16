@@ -7,6 +7,8 @@ if ('ontouchstart' in window) {
 document.addEventListener("DOMContentLoaded", function() {
   // Common Initialization
   let targetX, targetY;
+  let isAnimationPaused = false;  // Flag to track if animation is paused
+
   const target = document.createElement("div");
   target.id = "target";
   document.body.appendChild(target);
@@ -127,11 +129,11 @@ document.addEventListener("DOMContentLoaded", function() {
     let adjustedY = y - targetRadius;
   
     if (randomXYValue > 1) {
-      element.style.top = adjustedX * random1 + 'px';
-      element.style.left = adjustedY * random2 + 'px';
+      element.style.top = (adjustedY * random1 + adjustedX * random2) + 'px';
+      element.style.left = (adjustedX * random1 + adjustedY * random2) + 'px';
     } else {
-      element.style.top = adjustedY * random1 + 'px';
-      element.style.left = adjustedX * random2 + 'px';
+      element.style.top = (adjustedX * random2 ) + 'px';
+      element.style.left = (adjustedY * random1 ) + 'px';
     }
   }
   
@@ -142,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function() {
     updateTicColor();
     slider.addEventListener("change", function() {
       // Snapping functionality
-      const snapDistance = 30; // within 30 units
+      const snapDistance = 20; // within 20 units
       if (Math.abs(this.value - ticValue) < snapDistance) {
         this.value = ticValue;
       }
@@ -179,9 +181,18 @@ document.addEventListener("DOMContentLoaded", function() {
       const svgDoc = target.contentDocument;
       const svgRoot = svgDoc.documentElement;
       const bbox = svgRoot.getBBox();
-      
-      targetX = Math.floor(Math.random() * window.innerWidth);
-      targetY = Math.floor(Math.random() * window.innerHeight);
+  
+      // Calculate bounds for the target
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const horizontalMargin = windowWidth * 0.1; // 10% margin on each side
+      const verticalMargin = windowHeight * 0.1; // 10% margin on top and bottom
+  
+      // Random position within the middle 80% of the screen
+      targetX = Math.floor(Math.random() * (windowWidth - 2 * horizontalMargin - bbox.width)) + horizontalMargin;
+      targetY = Math.floor(Math.random() * (windowHeight - 2 * verticalMargin - bbox.height)) + verticalMargin;
+  
+      // Position the target and clickable circle
       target.style.position = "absolute";
       target.style.left = `${targetX - bbox.width / 2}px`;  // Center the SVG
       target.style.top = `${targetY - bbox.height / 2}px`;  // Center the SVG
@@ -191,21 +202,55 @@ document.addEventListener("DOMContentLoaded", function() {
       clickableCircle.style.top = `${targetY - 8}px`;  // Center the circle
 
       clickableCircle.addEventListener("click", function() {
-        navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
-          // Show and then hide the message
-          copyMessage.classList.add("show");
-          setTimeout(function() {
-            copyMessage.classList.remove("show");
-          }, 2000);  // Message will fade out after 2 seconds
-        }).catch(function(err) {
-          console.error("Could not copy text", err);
-        });
+        // navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
+        //   // Show and then hide the message
+        //   copyMessage.classList.add("show");
+        //   setTimeout(function() {
+        //     copyMessage.classList.remove("show");
+        //   }, 2000);  // Message will fade out after 2 seconds
+        // }).catch(function(err) {
+        //   console.error("Could not copy text", err);
+        // });
+        isAnimationPaused = !isAnimationPaused;  // Toggle the animation state
+        const svgDoc = document.getElementById("target").contentDocument;
+        const links = document.querySelectorAll('a');
+        if (isAnimationPaused) {
+          const svgRoot = svgDoc.documentElement;
+          changeSvgColor(svgRoot, 'white');
+          document.body.style.color = 'white';
+          links.forEach(function(link) {
+            link.style.color = 'white'; 
+          })        
+      } else {
+          const svgRoot = svgDoc.documentElement;
+          changeSvgColor(svgRoot, '#e3e3e3');
+          document.body.style.color = '#e3e3e3';
+          links.forEach(function(link) {
+            link.style.color = '#e3e3e3'; 
+          })   
+        }
+
       });
+
+      function changeSvgColor(svgElement, color) {
+        const allElements = svgElement.querySelectorAll('*');
+        allElements.forEach(el => {
+          // Check if the element has a fill attribute
+          if (el.getAttribute('fill')) {
+            el.style.fill = color;
+          }
+        });
+      }
     });
 
     let isSnapped = false;  // Variable to track whether the cursor has snapped to the target
 
     window.addEventListener("mousemove", function(e) {
+
+      if (isAnimationPaused) {
+        return;  // If animation is paused, do nothing further
+      }
+
       const x = e.clientX;
       const y = e.clientY;
 
@@ -240,28 +285,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
     slider.style.display = "none";
     ticMark.style.display = "none";
-    contact.style.display = "none";
+    // contact.style.display = "none"; 
 
     
   }
 
 
   const contactLink = document.getElementById("contact-link");
-  // const targetSVG = document.getElementById("target");
   const copyMessage = document.getElementById("copy-message");
 
-  // targetSVG.addEventListener("click", function(event) {
-  //   event.preventDefault();
-  //   navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
-  //     // Show and then hide the message
-  //     copyMessage.classList.add("show");
-  //     setTimeout(function() {
-  //       copyMessage.classList.remove("show");
-  //     }, 2000);  // Message will fade out after 2 seconds
-  //   }).catch(function(err) {
-  //     console.error("Could not copy text", err);
-  //   });
-  // });
 
   contactLink.addEventListener("click", function(event) {
     event.preventDefault();
