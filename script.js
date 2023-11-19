@@ -7,8 +7,7 @@ if ('ontouchstart' in window) {
 document.addEventListener("DOMContentLoaded", function() {
   // Common Initialization
   let targetX, targetY;
-  let isAnimationPaused = false;  // Flag to track if animation is paused
-
+  let isAnimationPaused = false;
   const target = document.createElement("div");
   target.id = "target";
   document.body.appendChild(target);
@@ -156,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function() {
         this.value = ticValue;
         document.body.style.color = 'white';
       } else {
-        document.body.style.color = '#DCDCDC';
+        document.body.style.color = '#d0d0d0';
       }
       
       handleValue = this.value;
@@ -186,8 +185,12 @@ document.addEventListener("DOMContentLoaded", function() {
   } else {
     // Initialize mouse-based interaction
     const target = document.getElementById("target");
+    console.log('load');
+    let notLoadedYet = true;
 
     target.addEventListener("load", function() {
+
+      if (notLoadedYet) {
       const svgDoc = target.contentDocument;
       const svgRoot = svgDoc.documentElement;
       const bbox = svgRoot.getBBox();
@@ -212,6 +215,9 @@ document.addEventListener("DOMContentLoaded", function() {
       clickableCircle.style.top = `${targetY - 8}px`;  // Center the circle
 
       clickableCircle.addEventListener("click", function() {
+        console.log('clicked');
+
+
         // navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
         //   // Show and then hide the message
         //   copyMessage.classList.add("show");
@@ -221,25 +227,27 @@ document.addEventListener("DOMContentLoaded", function() {
         // }).catch(function(err) {
         //   console.error("Could not copy text", err);
         // });
+
         isAnimationPaused = !isAnimationPaused;  // Toggle the animation state
         const svgDoc = document.getElementById("target").contentDocument;
         const links = document.querySelectorAll('a');
+   
+        
         if (isAnimationPaused) {
           const svgRoot = svgDoc.documentElement;
           changeSvgColor(svgRoot, 'white');
           document.body.style.color = 'white';
           links.forEach(function(link) {
-            link.style.color = 'white'; 
+          link.style.color = 'white'; 
           })        
       } else {
           const svgRoot = svgDoc.documentElement;
-          changeSvgColor(svgRoot, '#DCDCDC');
-          document.body.style.color = '#DCDCDC';
+          changeSvgColor(svgRoot, '#d0d0d0');
+          document.body.style.color = '#d0d0d0';
           links.forEach(function(link) {
-            link.style.color = '#DCDCDC'; 
+            link.style.color = '#d0d0d0'; 
           })   
         }
-
       });
 
       function changeSvgColor(svgElement, color) {
@@ -251,7 +259,13 @@ document.addEventListener("DOMContentLoaded", function() {
           }
         });
       }
+      notLoadedYet=!notLoadedYet;
+    }
+
     });
+
+    console.log('stillrunning');
+    
 
     let isSnapped = false;  // Variable to track whether the cursor has snapped to the target
 
@@ -297,7 +311,6 @@ document.addEventListener("DOMContentLoaded", function() {
     ticMark.style.display = "none";
     // contact.style.display = "none"; 
 
-    
   }
 
 
@@ -318,3 +331,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+
+
+
+
