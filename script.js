@@ -34,7 +34,11 @@ document.addEventListener("DOMContentLoaded", function() {
     { text: "Willie Shaw", elementId: "who" },
     { text: "Graphic Design", elementId: "what" },
     { text: "Research, narrative, user experience, visual systems.", elementId: "how" },
-    { text: "Contact", elementId: "contact" }
+    { text: "Contact ⎘", elementId: "contact" },
+    { text: "Work:", elementId: "work"},
+    { text: "Vespucci Group", elementId: "vespucci"},
+    { text: "Frisenda Architects", elementId: "frisenda"},
+    { text: "Somewhere", elementId: "somewhere"}
   ];
 
   let allLetterData = [];
@@ -245,7 +249,7 @@ document.addEventListener("DOMContentLoaded", function() {
           changeSvgColor(svgRoot, '#d0d0d0');
           document.body.style.color = '#d0d0d0';
           links.forEach(function(link) {
-            link.style.color = '#d0d0d0'; 
+          link.style.color = '#d0d0d0'; 
           })   
         }
       });

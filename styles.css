@@ -4,7 +4,7 @@ body {
   padding: 0;
   font-family: 'Helvetica Neue', sans-serif;
   font-size: 18pt;
-  color: #d0d0d0;
+  color: #b9b9b9;
   line-height: 70%;
   overflow: hidden; /* Hide scrollbars */
   animation: fadeInAnimation ease 0.2s;
@@ -75,17 +75,28 @@ svg {
 } */
 
 a {
-  color: #d0d0d0;
+  color: #b9b9b9;
   text-decoration: none;
+  /* text-decoration: underline; */
 }
 
-#who, #what, #how, #contact{
+a:active {
+  color: #7e7e7e;
+  
+}
+
+.work_link {
+  text-decoration: underline;
+}
+
+#who, #what, #how, #contact, #work, #vespucci, #somewhere, #frisenda{
   line-height: 1.15; 
 }
 
-#contact {
+
+#contact, #work {
   margin-top: 18px; 
-    display: inline-block;
+  /* display: inline-block; */
 }
 
 .copy-message {
@@ -111,7 +122,7 @@ a {
   opacity: 0.9;
 }
 
-#who span, #what span, #how span, #contact span {
+#who span, #what span, #how span, #contact span, #work span, #vespucci span, #somewhere span, #frisenda span {
   transition: top 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
