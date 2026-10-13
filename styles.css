@@ -57,63 +57,35 @@ input[type=range]::-webkit-slider-runnable-track {
 
 ::selection {
   color: rgb(229, 200, 255);
-  /* background: rgba(247, 234, 255, 0.17); */
 }
-
-svg {
-  fill: red !important; /* Change elements to red */
-
-}
-
-.red-color * {
-  fill: red !important; /* Change elements to red */
-}
-
-
-/* .text-container > div {
-  margin-top: 8pt;
-} */
 
 a {
   color: #b9b9b9;
   text-decoration: none;
-  /* text-decoration: underline; */
 }
 
 a:active {
   color: #7e7e7e;
-  
 }
 
 .work_link {
   text-decoration: underline;
 }
 
-#who, #what, #how, #contact, #work, #vespucci, #somewhere, #frisenda{
-  line-height: 1.15; 
+#who, #what, #how, #contact, #work, #vespucci, #somewhere, #frisenda {
+  line-height: 1.15;
 }
 
-
 #contact, #work {
-  margin-top: 18px; 
-  /* display: inline-block; */
+  margin-top: 18px;
 }
 
 .copy-message {
   display: none;
   text-align: center;
   font-size: 12pt;
-  /* position: fixed; */
-  /* bottom: 10px; */
-  /* left: 50%; */
-  /* transform: translateX(-50%); */
-  /* background-color: #00424d; */
-  /* mix-blend-mode: exclusion; */
   color: #FF4D00;
-  /* padding: 10px;
-  border-radius: 5px; */
   opacity: 0;
-  /* margin-bottom: 40px; */
 }
 
 .copy-message.show {
@@ -123,7 +95,6 @@ a:active {
 }
 
 #target {
-
   cursor: pointer;
   animation: fadeInAnimation ease 0.2s;
   animation-iteration-count: 1;
@@ -132,7 +103,7 @@ a:active {
 
 @keyframes fadeInAnimation {
   0% {
-      opacity: 0;
+    opacity: 0;
   }
   100% {
     opacity: 1;
@@ -157,9 +128,4 @@ a:active {
 
 .no-touch #slider {
   display: none;
-}
-
-svg path[fill="white"] {
-  fill: blueviolet;
-  mix-blend-mode: exclusion;
 }
