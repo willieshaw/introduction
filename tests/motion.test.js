@@ -1,35 +1,17 @@
 // Motion tests for the scattered-letter animation.
-// Run with `npm test`. Opens the installed Google Chrome through Playwright, in a real
-// window, because frame timing is what's under test. The window goes on the slowest
-// connected screen: the old CSS-transition animation only stuttered at 60Hz.
+// Run with `npm test`. Uses the installed Google Chrome through Playwright, headless,
+// so no window opens or takes focus.
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
 const { chromium } = require('playwright');
 
 const ROOT = path.join(__dirname, '..');
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.png': 'image/png' };
 
 let server, browser, baseURL;
-
-// Top-left corner of the macOS screen with the lowest refresh rate, as Chrome's --window-position.
-function slowestScreenPosition() {
-  try {
-    const script = `ObjC.import("AppKit"); const s = $.NSScreen.screens, out = [];
-      for (let i = 0; i < s.count; i++) { const f = s.objectAtIndex(i).frame;
-        out.push([s.objectAtIndex(i).maximumFramesPerSecond, f.origin.x, f.origin.y, f.size.height]); }
-      JSON.stringify(out)`;
-    const screens = JSON.parse(execFileSync('osascript', ['-l', 'JavaScript', '-e', script], { encoding: 'utf8' }));
-    const primaryHeight = screens[0][3];
-    const [, x, y, h] = screens.sort((a, b) => a[0] - b[0])[0];
-    return `${x + 40},${primaryHeight - (y + h) + 40}`;
-  } catch {
-    return null;
-  }
-}
 
 before(async () => {
   server = http.createServer((req, res) => {
@@ -40,8 +22,7 @@ before(async () => {
   });
   await new Promise(resolve => server.listen(0, resolve));
   baseURL = `http://localhost:${server.address().port}/`;
-  const position = slowestScreenPosition();
-  browser = await chromium.launch({ channel: 'chrome', headless: false, args: position ? [`--window-position=${position}`] : [] });
+  browser = await chromium.launch({ channel: 'chrome' });
 });
 
 after(async () => {
@@ -51,7 +32,6 @@ after(async () => {
 
 async function openDesktop() {
   const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
-  await page.bringToFront();  // Hidden or covered windows get throttled frame rates
   await page.goto(baseURL);
   await page.waitForFunction(() => document.getElementById('clickable-circle').style.left !== '');
   await page.waitForTimeout(300);
@@ -133,7 +113,6 @@ test('letters assemble the text exactly when the cursor reaches the target', asy
 
 test('letters still follow the mouse if it moved before the target finished loading', async () => {
   const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
-  await page.bringToFront();
   let releaseSvg;
   const svgHeld = new Promise(resolve => { releaseSvg = resolve; });
   await page.route('**/senarium.svg', async route => { await svgHeld; await route.continue(); });
@@ -160,7 +139,6 @@ test('letters still follow the mouse if it moved before the target finished load
 test('letters move on every frame while the slider is dragged on a phone', async () => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const page = await context.newPage();
-  await page.bringToFront();
   await page.goto(baseURL);
   await page.waitForTimeout(300);
   const samples = await page.evaluate(() => new Promise(resolve => {
