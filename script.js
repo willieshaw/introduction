@@ -1,18 +1,89 @@
-if ('ontouchstart' in window) {
-  document.documentElement.classList.add('touch');
-} else {
-  document.documentElement.classList.add('no-touch');
-}
+const isTouch = 'ontouchstart' in window;
+document.documentElement.classList.add(isTouch ? 'touch' : 'no-touch');
 
 document.addEventListener("DOMContentLoaded", function() {
-  // Common Initialization
-  let targetX, targetY;
-  let isAnimationPaused = false;
-  const target = document.createElement("div");
-  target.id = "target";
-  document.body.appendChild(target);
+  const phrases = [
+    { text: "Willie Shaw", elementId: "who" },
+    { text: "Graphic Design", elementId: "what" },
+    { text: "Research, narrative, user experience, visual systems.", elementId: "how" },
+    { text: "Contact ⎘", elementId: "contact" },
+    { text: "Work:", elementId: "work" },
+    { text: "Vespucci Group", elementId: "vespucci" },
+    { text: "Frisenda Architects", elementId: "frisenda" },
+    { text: "Somewhere", elementId: "somewhere" }
+  ];
 
-  // Slider and tic mark initialization
+  // Each letter is its own span with random multipliers that decide how far and
+  // which way it drifts from its typeset spot.
+  const letters = [];
+  phrases.forEach(({ text, elementId }) => {
+    const container = document.getElementById(elementId);
+    for (const char of text) {
+      const element = document.createElement("span");
+      element.textContent = char;
+      element.style.position = "relative";
+      container.appendChild(element);
+      letters.push({
+        element,
+        random1: Math.random() * 2.5 - 1.25,
+        random2: Math.random() * 2 - 1,
+        swapAxes: Math.random() * 2 <= 1,
+        x: 0, y: 0, tx: 0, ty: 0  // current and target offsets in px
+      });
+    }
+  });
+
+  // Letters ease toward their targets in one animation loop, a step every frame.
+  // CSS transitions restarted on every mouse or slider event never got to run, so
+  // letters froze or jumped while the input was moving.
+  const EASE_SECONDS = 0.11;
+  let frameRequested = false;
+  let lastFrame = null;
+
+  function moveTo(letter, top, left) {
+    letter.ty = top;
+    letter.tx = left;
+    if (!frameRequested) {
+      frameRequested = true;
+      lastFrame = null;
+      requestAnimationFrame(step);
+    }
+  }
+
+  function render(letter) {
+    letter.element.style.left = letter.x + 'px';
+    letter.element.style.top = letter.y + 'px';
+  }
+
+  function step(now) {
+    const dt = lastFrame === null ? 1000 / 60 : now - lastFrame;
+    const k = 1 - Math.exp(-dt / 1000 / EASE_SECONDS);
+    lastFrame = now;
+    let moving = false;
+    letters.forEach(letter => {
+      letter.x += (letter.tx - letter.x) * k;
+      letter.y += (letter.ty - letter.y) * k;
+      if (Math.abs(letter.tx - letter.x) < 0.05 && Math.abs(letter.ty - letter.y) < 0.05) {
+        letter.x = letter.tx;
+        letter.y = letter.ty;
+      } else {
+        moving = true;
+      }
+      render(letter);
+    });
+    if (moving) requestAnimationFrame(step);
+    else frameRequested = false;
+  }
+
+  function jumpToTargets() {
+    letters.forEach(letter => {
+      letter.x = letter.tx;
+      letter.y = letter.ty;
+      render(letter);
+    });
+  }
+
+  // Slider: the letters line up when the handle sits on the tic mark.
   const slider = document.getElementById("slider");
   const ticMark = document.getElementById("tic-mark");
   const maxValue = 1000;
@@ -29,359 +100,128 @@ document.addEventListener("DOMContentLoaded", function() {
   slider.max = maxValue;
   slider.value = handleValue;
 
-  // Letters ease toward their targets in one animation loop, a step every frame.
-  // CSS transitions restarted on every mouse or slider event never got to run, so
-  // letters froze or jumped while the input was moving.
-  const EASE_SECONDS = 0.11;
-  const motion = new Map();  // letter element -> { x, y, tx, ty } in px
-  let frameRequested = false;
-  let lastFrame = null;
-
-  function moveTo(element, top, left) {
-    const m = motion.get(element);
-    m.ty = top;
-    m.tx = left;
-    if (!frameRequested) {
-      frameRequested = true;
-      lastFrame = null;
-      requestAnimationFrame(step);
-    }
-  }
-
-  function step(now) {
-    const dt = lastFrame === null ? 1000 / 60 : now - lastFrame;
-    const k = 1 - Math.exp(-dt / 1000 / EASE_SECONDS);
-    lastFrame = now;
-    let moving = false;
-    motion.forEach((m, element) => {
-      m.x += (m.tx - m.x) * k;
-      m.y += (m.ty - m.y) * k;
-      if (Math.abs(m.tx - m.x) < 0.05 && Math.abs(m.ty - m.y) < 0.05) {
-        m.x = m.tx;
-        m.y = m.ty;
-      } else {
-        moving = true;
-      }
-      element.style.left = m.x + 'px';
-      element.style.top = m.y + 'px';
-    });
-    if (moving) requestAnimationFrame(step);
-    else frameRequested = false;
-  }
-
-  function jumpToTargets() {
-    motion.forEach((m, element) => {
-      m.x = m.tx;
-      m.y = m.ty;
-      element.style.left = m.x + 'px';
-      element.style.top = m.y + 'px';
+  function scatterBySlider() {
+    const x = handleValue - ticValue;
+    letters.forEach(letter => {
+      if (letter.swapAxes) moveTo(letter, x * letter.random2, x * letter.random1);
+      else moveTo(letter, x * letter.random1, x * letter.random2);
     });
   }
 
-  // Text manipulation initialization
-  let phrases = [
-    { text: "Willie Shaw", elementId: "who" },
-    { text: "Graphic Design", elementId: "what" },
-    { text: "Research, narrative, user experience, visual systems.", elementId: "how" },
-    { text: "Contact ⎘", elementId: "contact" },
-    { text: "Work:", elementId: "work"},
-    { text: "Vespucci Group", elementId: "vespucci"},
-    { text: "Frisenda Architects", elementId: "frisenda"},
-    { text: "Somewhere", elementId: "somewhere"}
-  ];
+  scatterBySlider();
+  jumpToTargets();
 
-  let allLetterData = [];
-
-  phrases.forEach(phraseObj => {
-    let textArea = document.getElementById(phraseObj.elementId);
-    let letterIDs = [];
-    let randomMultipliers = [];
-    let randomXY = [];
-
-    generateIDs(phraseObj.text, phraseObj.elementId, letterIDs);
-    generateLetters(phraseObj.text, textArea, letterIDs);
-    defineIDs(letterIDs);
-    generateRandomMultipliers(letterIDs.length, randomMultipliers);
-    generateRandomXY(letterIDs.length, randomXY);
-    setInitialCoordinates(letterIDs, randomMultipliers, randomXY);
-
-    allLetterData.push({ letterIDs, randomMultipliers, randomXY });
-  });
-
-  function updatePositions() {
-    const trackWidth = slider.offsetWidth;
-    const padding = 10; // Padding on each side
-    const effectiveTrackWidth = trackWidth - (padding * 2); // Subtract padding from both sides
-  
-    // Adjust the ticPosition to account for the padding
-    // When ticValue is 0, ticPosition should be 12 (the value of padding)
-    // When ticValue is maxValue, ticPosition should be trackWidth - 12
-    let ticPosition = (ticValue / maxValue) * effectiveTrackWidth + padding;
-  
-    const rangeValue = (handleValue / maxValue) * 100;
-  
-    slider.style.setProperty('--range-value', `${rangeValue}%`);
-    ticMark.style.left = `${ticPosition}px`;
-  }
-
-  function updateTicColor() {
-    if (handleValue >= ticValue) {
-      ticMark.style.backgroundColor = 'white';
-    } else {
-      ticMark.style.backgroundColor = '#636363';
+  if (isTouch) {
+    function updateSlider() {
+      const padding = 10;  // Track padding on each side
+      const effectiveTrackWidth = slider.offsetWidth - padding * 2;
+      ticMark.style.left = `${(ticValue / maxValue) * effectiveTrackWidth + padding}px`;
+      slider.style.setProperty('--range-value', `${(handleValue / maxValue) * 100}%`);
+      ticMark.style.backgroundColor = handleValue >= ticValue ? 'white' : '#636363';
+      scatterBySlider();
     }
-  }
 
-  function generateIDs(phrase, elementId, letterIDs) {
-    for (let i = 0; i < phrase.length; i++) {
-      letterIDs.push(elementId + "-letter" + i);
-    }
-  }
+    updateSlider();
 
-  function generateLetters(phrase, textArea, letterIDs) {
-    for (let i = 0; i < phrase.length; i++) {
-      textArea.innerHTML += "<span id='" + letterIDs[i] + "'>" + phrase[i] + "</span>";
-    }
-  }
-
-  function defineIDs(letterIDs) {
-    for (let i = 0; i < letterIDs.length; i++) {
-      let element = document.getElementById(letterIDs[i]);
-      element.style.position = "relative";
-      motion.set(element, { x: 0, y: 0, tx: 0, ty: 0 });
-    }
-  }
-
-  function generateRandomMultipliers(length, randomMultipliers) {
-    for (let i = 0; i < length; i++) {
-      randomMultipliers.push(Math.random() * 2.5 - 1.25);
-      randomMultipliers.push(Math.random() * 2 - 1);
-    }
-  }
-
-  function generateRandomXY(length, randomXY) {
-    for (let i = 0; i < length; i++) {
-      randomXY.push(Math.random() * 2);
-    }
-  }
-
-  function setInitialCoordinates(letterIDs, randomMultipliers, randomXY) {
-    for (let i = 0; i < letterIDs.length; i++) {
-      let element = document.getElementById(letterIDs[i]);
-      setCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], handleValue, ticValue, randomXY[i]);
-    }
-    jumpToTargets();
-  }
-
-  function setCoordinates(element, random1, random2, handleValue, ticValue, randomXYValue) {
-    let x = handleValue - ticValue;
-    if (randomXYValue > 1) {
-      moveTo(element, x * random1, x * random2);
-    } else {
-      moveTo(element, x * random2, x * random1);
-    }
-  }
-
-  function setMouseCoordinates(element, random1, random2, x, y, randomXYValue) {
-    let targetRadius = 10;  // Assuming the target has a radius of 10 pixels
-    let adjustedX = x - targetRadius;
-    let adjustedY = y - targetRadius;
-  
-    if (randomXYValue > 1) {
-      moveTo(element, adjustedY * random1 + adjustedX * random2, adjustedX * random1 + adjustedY * random2);
-    } else {
-      moveTo(element, adjustedX * random2, adjustedY * random1);
-    }
-  }
-  
-
-  if ('ontouchstart' in window) {
-    // Initialize touch-based interaction
-    updatePositions();
-    updateTicColor();
     slider.addEventListener("change", function() {
-      // Snapping functionality
-      const snapDistance = 26; // within 20 units
+      const snapDistance = 26;
       if (Math.abs(this.value - ticValue) < snapDistance) {
         this.value = ticValue;
         document.body.style.color = 'white';
       } else {
         document.body.style.color = '#d0d0d0';
       }
-      
-      handleValue = this.value;
-      updatePositions();
-      updateTicColor();
-      allLetterData.forEach(({ letterIDs, randomMultipliers, randomXY }) => {
-        for (let i = 0; i < letterIDs.length; i++) {
-          let element = document.getElementById(letterIDs[i]);
-          setCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], handleValue, ticValue, randomXY[i]);
-        }
-      });
+      handleValue = Number(this.value);
+      updateSlider();
     });
-    
+
     slider.addEventListener("input", function() {
-      handleValue = this.value;
-      updatePositions();
-      updateTicColor();
-      allLetterData.forEach(({ letterIDs, randomMultipliers, randomXY }) => {
-        for (let i = 0; i < letterIDs.length; i++) {
-          let element = document.getElementById(letterIDs[i]);
-          setCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], handleValue, ticValue, randomXY[i]);
-        }
-      });
+      handleValue = Number(this.value);
+      updateSlider();
     });
-    
-    
   } else {
-    // Initialize mouse-based interaction
+    // Mouse: the letters line up when the cursor reaches the target, a small SVG
+    // placed at random in the middle of the window. Clicking it pauses the letters.
     const target = document.getElementById("target");
-    console.log('load');
-    let notLoadedYet = true;
+    const clickableCircle = document.getElementById("clickable-circle");
+    let targetX, targetY;
+    let isAnimationPaused = false;
 
-    target.addEventListener("load", function() {
+    slider.style.display = "none";
+    ticMark.style.display = "none";
 
-      if (notLoadedYet) {
-      const svgDoc = target.contentDocument;
-      const svgRoot = svgDoc.documentElement;
-      const bbox = svgRoot.getBBox();
-  
-      // Calculate bounds for the target
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      const horizontalMargin = windowWidth * 0.1; // 10% margin on each side
-      const verticalMargin = windowHeight * 0.1; // 10% margin on top and bottom
-  
-      // Random position within the middle 80% of the screen
-      targetX = Math.floor(Math.random() * (windowWidth - 2 * horizontalMargin - bbox.width)) + horizontalMargin;
-      targetY = Math.floor(Math.random() * (windowHeight - 2 * verticalMargin - bbox.height)) + verticalMargin;
-  
-      // Position the target and clickable circle
-      target.style.position = "absolute";
-      target.style.left = `${targetX - bbox.width / 2}px`;  // Center the SVG
-      target.style.top = `${targetY - bbox.height / 2}px`;  // Center the SVG
-
-      const clickableCircle = document.getElementById("clickable-circle");
-      clickableCircle.style.left = `${targetX - 8}px`;  // Center the circle
-      clickableCircle.style.top = `${targetY - 8}px`;  // Center the circle
-
-      clickableCircle.addEventListener("click", function() {
-        console.log('clicked');
-
-
-        // navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
-        //   // Show and then hide the message
-        //   copyMessage.classList.add("show");
-        //   setTimeout(function() {
-        //     copyMessage.classList.remove("show");
-        //   }, 2000);  // Message will fade out after 2 seconds
-        // }).catch(function(err) {
-        //   console.error("Could not copy text", err);
-        // });
-
-        isAnimationPaused = !isAnimationPaused;  // Toggle the animation state
-        const svgDoc = document.getElementById("target").contentDocument;
-        const links = document.querySelectorAll('a');
-   
-        
-        if (isAnimationPaused) {
-          const svgRoot = svgDoc.documentElement;
-          changeSvgColor(svgRoot, 'white');
-          document.body.style.color = 'white';
-          links.forEach(function(link) {
-          link.style.color = 'white'; 
-          })        
-      } else {
-          const svgRoot = svgDoc.documentElement;
-          changeSvgColor(svgRoot, '#d0d0d0');
-          document.body.style.color = '#d0d0d0';
-          links.forEach(function(link) {
-          link.style.color = '#d0d0d0'; 
-          })   
-        }
+    function changeSvgColor(color) {
+      target.contentDocument.documentElement.querySelectorAll('*').forEach(el => {
+        if (el.getAttribute('fill')) el.style.fill = color;
       });
-
-      function changeSvgColor(svgElement, color) {
-        const allElements = svgElement.querySelectorAll('*');
-        allElements.forEach(el => {
-          // Check if the element has a fill attribute
-          if (el.getAttribute('fill')) {
-            el.style.fill = color;
-          }
-        });
-      }
-      notLoadedYet=!notLoadedYet;
     }
 
-    });
+    // Safari can fire load more than once, which used to register the click
+    // handler twice so a click paused and immediately unpaused.
+    target.addEventListener("load", function() {
+      const svgRoot = target.contentDocument.documentElement;
+      const bbox = svgRoot.getBBox();
 
-    console.log('stillrunning');
-    
+      // Random position within the middle 80% of the window
+      const horizontalMargin = window.innerWidth * 0.1;
+      const verticalMargin = window.innerHeight * 0.1;
+      targetX = Math.floor(Math.random() * (window.innerWidth - 2 * horizontalMargin - bbox.width)) + horizontalMargin;
+      targetY = Math.floor(Math.random() * (window.innerHeight - 2 * verticalMargin - bbox.height)) + verticalMargin;
 
-    let isSnapped = false;  // Variable to track whether the cursor has snapped to the target
+      target.style.position = "absolute";
+      target.style.left = `${targetX - bbox.width / 2}px`;
+      target.style.top = `${targetY - bbox.height / 2}px`;
+      clickableCircle.style.left = `${targetX - 8}px`;
+      clickableCircle.style.top = `${targetY - 8}px`;
+
+      clickableCircle.addEventListener("click", function() {
+        isAnimationPaused = !isAnimationPaused;
+        const color = isAnimationPaused ? 'white' : '#d0d0d0';
+        changeSvgColor(color);
+        document.body.style.color = color;
+        document.querySelectorAll('a').forEach(link => { link.style.color = color; });
+      });
+    }, { once: true });
 
     window.addEventListener("mousemove", function(e) {
-
       if (isAnimationPaused || targetX === undefined) {
         return;  // Paused, or the target hasn't been placed yet
       }
 
-      const x = e.clientX;
-      const y = e.clientY;
+      const dx = e.clientX - targetX;
+      const dy = e.clientY - targetY;
 
-      // Calculate the distance from the cursor to the center of the target
-      const dx = x - targetX;  // Center of the SVG
-      const dy = y - targetY;  // Center of the SVG
-
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      // Check if the cursor is inside the 5x5 target at the center of the larger target
-      if (distance < 10 && !isSnapped) {  // 5 pixels for the inner target radius
-        isSnapped = true;
-        allLetterData.forEach(({ letterIDs }) => {
-          for (let i = 0; i < letterIDs.length; i++) {
-            let element = document.getElementById(letterIDs[i]);
-            moveTo(element, 0, 0);
-          }
-        });
-      } else if (distance >= 5 && isSnapped) {
-        isSnapped = false;
-      } else if (!isSnapped) {
-        allLetterData.forEach(({ letterIDs, randomMultipliers, randomXY }) => {
-          for (let i = 0; i < letterIDs.length; i++) {
-            let element = document.getElementById(letterIDs[i]);
-            setMouseCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], x - targetX, y - targetY, randomXY[i]);
-          }
-        });
+      if (Math.hypot(dx, dy) < 10) {
+        letters.forEach(letter => moveTo(letter, 0, 0));
+        return;
       }
+
+      // Offsets are measured from the target's edge, 10px from its center
+      const adjustedX = dx - 10;
+      const adjustedY = dy - 10;
+      letters.forEach(letter => {
+        if (letter.swapAxes) {
+          moveTo(letter, adjustedX * letter.random2, adjustedY * letter.random1);
+        } else {
+          moveTo(letter,
+            adjustedY * letter.random1 + adjustedX * letter.random2,
+            adjustedX * letter.random1 + adjustedY * letter.random2);
+        }
+      });
     });
-
-
-    slider.style.display = "none";
-    ticMark.style.display = "none";
-    // contact.style.display = "none"; 
-
   }
 
-
-  const contactLink = document.getElementById("contact-link");
+  // Contact copies the email address instead of opening a mail app
   const copyMessage = document.getElementById("copy-message");
-
-
-  contactLink.addEventListener("click", function(event) {
+  document.getElementById("contact-link").addEventListener("click", function(event) {
     event.preventDefault();
     navigator.clipboard.writeText("hello@willieshaw.com").then(function() {
-      // Show and then hide the message
       copyMessage.classList.add("show");
       setTimeout(function() {
         copyMessage.classList.remove("show");
-      }, 2000);  // Message will fade out after 2 seconds
+      }, 2000);
     }).catch(function(err) {
       console.error("Could not copy text", err);
     });
   });
 });
-
-
-
-

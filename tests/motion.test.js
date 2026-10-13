@@ -51,6 +51,7 @@ after(async () => {
 
 async function openDesktop() {
   const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
+  await page.bringToFront();  // Hidden or covered windows get throttled frame rates
   await page.goto(baseURL);
   await page.waitForFunction(() => document.getElementById('clickable-circle').style.left !== '');
   await page.waitForTimeout(300);
@@ -132,6 +133,7 @@ test('letters assemble the text exactly when the cursor reaches the target', asy
 
 test('letters still follow the mouse if it moved before the target finished loading', async () => {
   const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
+  await page.bringToFront();
   let releaseSvg;
   const svgHeld = new Promise(resolve => { releaseSvg = resolve; });
   await page.route('**/senarium.svg', async route => { await svgHeld; await route.continue(); });
@@ -158,6 +160,7 @@ test('letters still follow the mouse if it moved before the target finished load
 test('letters move on every frame while the slider is dragged on a phone', async () => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const page = await context.newPage();
+  await page.bringToFront();
   await page.goto(baseURL);
   await page.waitForTimeout(300);
   const samples = await page.evaluate(() => new Promise(resolve => {
