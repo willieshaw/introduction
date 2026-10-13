@@ -29,6 +29,55 @@ document.addEventListener("DOMContentLoaded", function() {
   slider.max = maxValue;
   slider.value = handleValue;
 
+  // Letters ease toward their targets in one animation loop, a step every frame.
+  // CSS transitions restarted on every mouse or slider event never got to run, so
+  // letters froze or jumped while the input was moving.
+  const EASE_SECONDS = 0.11;
+  const motion = new Map();  // letter element -> { x, y, tx, ty } in px
+  let frameRequested = false;
+  let lastFrame = null;
+
+  function moveTo(element, top, left) {
+    const m = motion.get(element);
+    m.ty = top;
+    m.tx = left;
+    if (!frameRequested) {
+      frameRequested = true;
+      lastFrame = null;
+      requestAnimationFrame(step);
+    }
+  }
+
+  function step(now) {
+    const dt = lastFrame === null ? 1000 / 60 : now - lastFrame;
+    const k = 1 - Math.exp(-dt / 1000 / EASE_SECONDS);
+    lastFrame = now;
+    let moving = false;
+    motion.forEach((m, element) => {
+      m.x += (m.tx - m.x) * k;
+      m.y += (m.ty - m.y) * k;
+      if (Math.abs(m.tx - m.x) < 0.05 && Math.abs(m.ty - m.y) < 0.05) {
+        m.x = m.tx;
+        m.y = m.ty;
+      } else {
+        moving = true;
+      }
+      element.style.left = m.x + 'px';
+      element.style.top = m.y + 'px';
+    });
+    if (moving) requestAnimationFrame(step);
+    else frameRequested = false;
+  }
+
+  function jumpToTargets() {
+    motion.forEach((m, element) => {
+      m.x = m.tx;
+      m.y = m.ty;
+      element.style.left = m.x + 'px';
+      element.style.top = m.y + 'px';
+    });
+  }
+
   // Text manipulation initialization
   let phrases = [
     { text: "Willie Shaw", elementId: "who" },
@@ -99,6 +148,7 @@ document.addEventListener("DOMContentLoaded", function() {
     for (let i = 0; i < letterIDs.length; i++) {
       let element = document.getElementById(letterIDs[i]);
       element.style.position = "relative";
+      motion.set(element, { x: 0, y: 0, tx: 0, ty: 0 });
     }
   }
 
@@ -120,16 +170,15 @@ document.addEventListener("DOMContentLoaded", function() {
       let element = document.getElementById(letterIDs[i]);
       setCoordinates(element, randomMultipliers[i * 2], randomMultipliers[i * 2 + 1], handleValue, ticValue, randomXY[i]);
     }
+    jumpToTargets();
   }
 
   function setCoordinates(element, random1, random2, handleValue, ticValue, randomXYValue) {
     let x = handleValue - ticValue;
     if (randomXYValue > 1) {
-      element.style.top = x * random1 + 'px';
-      element.style.left = x * random2 + 'px';
+      moveTo(element, x * random1, x * random2);
     } else {
-      element.style.top = x * random2 + 'px';
-      element.style.left = x * random1 + 'px';
+      moveTo(element, x * random2, x * random1);
     }
   }
 
@@ -139,11 +188,9 @@ document.addEventListener("DOMContentLoaded", function() {
     let adjustedY = y - targetRadius;
   
     if (randomXYValue > 1) {
-      element.style.top = (adjustedY * random1 + adjustedX * random2) + 'px';
-      element.style.left = (adjustedX * random1 + adjustedY * random2) + 'px';
+      moveTo(element, adjustedY * random1 + adjustedX * random2, adjustedX * random1 + adjustedY * random2);
     } else {
-      element.style.top = (adjustedX * random2 ) + 'px';
-      element.style.left = (adjustedY * random1 ) + 'px';
+      moveTo(element, adjustedX * random2, adjustedY * random1);
     }
   }
   
@@ -275,8 +322,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     window.addEventListener("mousemove", function(e) {
 
-      if (isAnimationPaused) {
-        return;  // If animation is paused, do nothing further
+      if (isAnimationPaused || targetX === undefined) {
+        return;  // Paused, or the target hasn't been placed yet
       }
 
       const x = e.clientX;
@@ -294,8 +341,7 @@ document.addEventListener("DOMContentLoaded", function() {
         allLetterData.forEach(({ letterIDs }) => {
           for (let i = 0; i < letterIDs.length; i++) {
             let element = document.getElementById(letterIDs[i]);
-            element.style.top = '0px';
-            element.style.left = '0px';
+            moveTo(element, 0, 0);
           }
         });
       } else if (distance >= 5 && isSnapped) {
